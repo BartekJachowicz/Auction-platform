@@ -85,7 +85,6 @@ App = {
     for (var i = 1; i <= auctionNumber; i++) {
       // Fetch the task data from the blockchain
       const auction = await App.auctionList.auctions(i)
-      console.log(auction)
       const auctionId = auction[0].toNumber()
       const auctionContent = auction[1]
       const auctionStartPrice = auction[3].c[0]
@@ -97,7 +96,7 @@ App = {
       $newAuctionTemplate.find('.content').html(auctionContent)
       $newAuctionTemplate.find('.deadline').html(auctionDeadline)
       $newAuctionTemplate.find('.startprice').html(auctionStartPrice)
-      $newAuctionTemplate.find('input')
+      $newAuctionTemplate.find('form')
                       .prop('name', auctionId)
 
       // Put the auctions in the correct list
@@ -115,6 +114,12 @@ App = {
     const startPrice = $('#startPrice').val()
     const deadline = dateToUint(new Date($('#deadline').val()))
     await App.auctionList.createAuction(itemName, ownerAddress, startPrice, deadline);
+    window.location.reload()
+  },
+
+  makeBid: async (id) => {
+    App.setLoading(true)
+    await App.auctionList.makeBid(id)
     window.location.reload()
   },
 

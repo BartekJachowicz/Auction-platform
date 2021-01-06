@@ -90,7 +90,7 @@
                     <br>
                     <Span>Deadline: </Span>
                     <span class="deadline">Deadline goes here...</span>
-                    <form>
+                    <form onSubmit="App.makeBid(this.name); return false;">
                       <input id="bid" type="number" min="0">
                       <input type="submit" value="Bid">
                     </form>

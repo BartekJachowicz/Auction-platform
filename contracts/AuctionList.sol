@@ -32,4 +32,9 @@ contract AuctionList {
         auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAddress, startPrice, deadline);
         emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline);
     }
+
+    function makeBid(uint auctionID) public {
+        //TODO
+        auctions[auctionID].startPrice = 100;
+    }
 }
