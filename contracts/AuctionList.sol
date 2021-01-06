@@ -27,9 +27,9 @@ contract AuctionList {
         uint256 deadline
     );
 
-    function createAuction(string memory auctionObject, address payable ownerAdress, uint startPrice, uint256 deadline) public {
+    function createAuction(string memory auctionObject, address payable ownerAddress, uint startPrice, uint256 deadline) public {
         auctionNumber ++;
-        auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAdress, startPrice, deadline);
-        emit AuctionCreated(auctionNumber, auctionObject, ownerAdress, startPrice, deadline);
+        auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAddress, startPrice, deadline);
+        emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline);
     }
 }
