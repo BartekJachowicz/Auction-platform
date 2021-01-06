@@ -85,10 +85,11 @@ App = {
     for (var i = 1; i <= auctionNumber; i++) {
       // Fetch the task data from the blockchain
       const auction = await App.auctionList.auctions(i)
+      console.log(auction)
       const auctionId = auction[0].toNumber()
       const auctionContent = auction[1]
-      const auctionStartPrice = auction[3]
-      const auctionDeadline = auction[4]
+      const auctionStartPrice = auction[3].c[0]
+      const auctionDeadline = uintToDate(auction[4].c[0])
 
 
       // Create the html for the task
@@ -99,19 +100,21 @@ App = {
       $newAuctionTemplate.find('input')
                       .prop('name', auctionId)
 
-      // Put the task in the correct list
+      // Put the auctions in the correct list
       $('#auctionList').append($newAuctionTemplate)
       
-      // Show the task
+      // Show the auction
       $newAuctionTemplate.show()
     }
   },
 
   createAuction: async () => {
     App.setLoading(true)
-    const content = $('#newAuction').val()
-    console.log(content)
-    await App.auctionList.createAuction(content, 0x111122223333444455556666777788889999aAaa, 143, 1);
+    const itemName = $('#newAuction').val()
+    const ownerAddress = $('#auctionOwnerAddress').val()
+    const startPrice = $('#startPrice').val()
+    const deadline = dateToUint(new Date($('#deadline').val()))
+    await App.auctionList.createAuction(itemName, ownerAddress, startPrice, deadline);
     window.location.reload()
   },
 
@@ -127,6 +130,14 @@ App = {
       content.show()
     }
   }
+}
+
+function uintToDate(timestamp){
+  return new Date(timestamp * 1000)
+}
+
+function dateToUint(date) {
+  return date.getTime()/1000
 }
 
 $(() => {
