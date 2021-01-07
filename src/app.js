@@ -89,6 +89,9 @@ App = {
       const auctionContent = auction[1]
       const auctionStartPrice = auction[3].c[0]
       const auctionDeadline = uintToDate(auction[4].c[0])
+      const higherBidderAddress = auction[5]
+      const highestBid = auction[6].c[0]
+
 
 
       // Create the html for the task
@@ -96,8 +99,12 @@ App = {
       $newAuctionTemplate.find('.content').html(auctionContent)
       $newAuctionTemplate.find('.deadline').html(auctionDeadline)
       $newAuctionTemplate.find('.startprice').html(auctionStartPrice)
+      $newAuctionTemplate.find('.highestbid').html(highestBid)
+      $newAuctionTemplate.find('.bidderaddress').html(higherBidderAddress)
       $newAuctionTemplate.find('form')
                       .prop('name', auctionId)
+      $newAuctionTemplate.find('input')
+                      .prop('id', "bidValue"+auctionId)
 
       // Put the auctions in the correct list
       $('#auctionList').append($newAuctionTemplate)
@@ -110,16 +117,17 @@ App = {
   createAuction: async () => {
     App.setLoading(true)
     const itemName = $('#newAuction').val()
-    const ownerAddress = $('#auctionOwnerAddress').val()
+    //const ownerAddress = $('#auctionOwnerAddress').val()
     const startPrice = $('#startPrice').val()
     const deadline = dateToUint(new Date($('#deadline').val()))
-    await App.auctionList.createAuction(itemName, ownerAddress, startPrice, deadline);
+    await App.auctionList.createAuction(itemName, startPrice, deadline);
     window.location.reload()
   },
 
   makeBid: async (id) => {
     App.setLoading(true)
-    await App.auctionList.makeBid(id)
+    const bidValue = $('#bidValue'+id).val()
+    await App.auctionList.makeBid(id, bidValue);
     window.location.reload()
   },
 
