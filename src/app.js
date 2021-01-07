@@ -89,7 +89,7 @@ App = {
       const auctionContent = auction[1]
       const auctionStartPrice = auction[3].c[0]
       const auctionDeadline = uintToDate(auction[4].c[0])
-      const higherBidderAddress = auction[5]
+      const highestBidderAddress = auction[5]
       const highestBid = auction[6].c[0]
 
 
@@ -100,7 +100,7 @@ App = {
       $newAuctionTemplate.find('.deadline').html(auctionDeadline)
       $newAuctionTemplate.find('.startprice').html(auctionStartPrice)
       $newAuctionTemplate.find('.highestbid').html(highestBid)
-      $newAuctionTemplate.find('.bidderaddress').html(higherBidderAddress)
+      $newAuctionTemplate.find('.bidderaddress').html(highestBidderAddress)
       $newAuctionTemplate.find('form')
                       .prop('name', auctionId)
       $newAuctionTemplate.find('input')

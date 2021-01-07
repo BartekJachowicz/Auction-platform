@@ -5,7 +5,7 @@ contract AuctionList {
 
     struct Bid {
         uint bidPrice;
-        address payable bidderAddress;
+        address payable BidAddress;
     }
 
     struct Auction {
@@ -14,8 +14,8 @@ contract AuctionList {
         address payable ownerAddress;
         uint startPrice;
         uint256 deadline;
-        address payable largestBidAddress;
-        uint largestBid;
+        address payable highestBidAddress;
+        uint highestBid;
         uint numberOfBids;
     }
 
@@ -30,10 +30,34 @@ contract AuctionList {
         address payable ownerAddress,
         uint startPrice,
         uint256 deadline,
-        address payable largestBidderAddress,
-        uint largestBid,
+        address payable highestBidAddress,
+        uint highestBid,
         uint numberOfBids
     );
+
+    event BidDone(
+        uint auctionID,
+        uint highestBid,
+        address payable highestBidAddress
+    );
+
+    event AuctionEnded(
+        uint auctionID,
+        uint highestBid,
+        address payable highestBidAddress
+    );
+
+    modifier liveAuction(uint auctionId) {
+        // Auction should not be ended
+        require(now < auctions[auctionId].deadline);
+        _;
+    }
+
+    modifier onlyOwner(uint auctionID) { 
+        require(msg.sender == auctions[auctionID].ownerAddress);
+        _;
+    } 
+
 
     function createAuction(string memory auctionObject, uint startPrice, uint256 deadline) public {
         address payable ownerAddress = msg.sender;
@@ -42,11 +66,26 @@ contract AuctionList {
         emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0);
     }
 
-    function makeBid(uint auctionID, uint bidPrice) public {
-        auctions[auctionID].largestBid = bidPrice;
-        auctions[auctionID].largestBidAddress = msg.sender;
+    function makeBid(uint auctionID, uint bidPrice) public payable liveAuction(auctionID) returns(bool){
+        if(bidPrice < auctions[auctionID].highestBid){
+            return false;
+        }
+        // TODO: check how require works and how to use it properly
+        // require(bidPrice > auctions[auctionID].highestBid, "ERROR!");
+
+        auctions[auctionID].highestBid = bidPrice;
+        auctions[auctionID].highestBidAddress = msg.sender;
         auctions[auctionID].numberOfBids ++;
 
         auctionIdsToBids[auctionID].push(Bid(bidPrice, msg.sender));
+        emit BidDone(auctionID, bidPrice, msg.sender);
+
+        return true;
+    }
+
+    function endAuction(uint auctionID) public payable onlyOwner(auctionID) {
+        require(now >= auctions[auctionID].deadline);
+        
+        emit AuctionEnded(auctionID, auctions[auctionID].highestBid, auctions[auctionID].highestBidAddress);
     }
 }
