@@ -83,7 +83,7 @@ contract AuctionList {
         return true;
     }
 
-    function endAuction(uint auctionID) public payable onlyOwner(auctionID) {
+    function endAuction(uint auctionID) public payable {
         require(now >= auctions[auctionID].deadline);
 
         Auction memory endedAuction = auctions[auctionID];
