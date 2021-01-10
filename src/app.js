@@ -83,53 +83,56 @@ App = {
 
     // Render out each task with a new task template
     for (var i = 1; i <= auctionNumber; i++) {
-      // Fetch the task data from the blockchain
-      const auction = await App.auctionList.auctions(i)
-      const auctionId = auction[0].toNumber()
-      const auctionContent = auction[1]
-      const auctionStartPrice = auction[3].c[0]
-      const auctionDeadline = uintToDate(auction[4].c[0])
-      const highestBidderAddress = auction[5]
-      const highestBid = auction[6].c[0]
+      App.auctionList.getAuction.call(i).then(function(result) {
+        const auctionId = result[0].toNumber()
+        const auctionContent = result[1]
+        const auctionStartPrice = web3.fromWei(result[3].toNumber())
+        const auctionDeadline = uintToDate(result[4])
+        const highestBidderAddress = result[5]
+        const highestBid = web3.fromWei(result[6].toNumber())
 
 
 
-      // Create the html for the task
-      const $newAuctionTemplate = $auctionTemplate.clone()
-      $newAuctionTemplate.find('.content').html(auctionContent)
-      $newAuctionTemplate.find('.deadline').html(auctionDeadline)
-      $newAuctionTemplate.find('.startprice').html(auctionStartPrice)
-      $newAuctionTemplate.find('.highestbid').html(highestBid)
-      $newAuctionTemplate.find('.bidderaddress').html(highestBidderAddress)
-      $newAuctionTemplate.find('form')
-                      .prop('name', auctionId)
-      $newAuctionTemplate.find('input')
-                      .prop('id', "bidValue"+auctionId)
-      $newAuctionTemplate.find('button')
-                      .prop('name', auctionId)
+        // Create the html for the task
+        const $newAuctionTemplate = $auctionTemplate.clone()
+        $newAuctionTemplate.find('.content').html(auctionContent)
+        $newAuctionTemplate.find('.deadline').html(auctionDeadline)
+        $newAuctionTemplate.find('.startprice').html(auctionStartPrice)
+        $newAuctionTemplate.find('.highestbid').html(highestBid)
+        $newAuctionTemplate.find('.bidderaddress').html(highestBidderAddress)
+        $newAuctionTemplate.find('form')
+                        .prop('name', auctionId)
+        $newAuctionTemplate.find('input')
+                        .prop('id', "bidValue"+auctionId)
+        $newAuctionTemplate.find('button')
+                        .prop('name', auctionId)
 
-      // Put the auctions in the correct list
-      $('#auctionList').append($newAuctionTemplate)
-      
-      // Show the auction
-      $newAuctionTemplate.show()
+        // Put the auctions in the correct list
+        $('#auctionList').append($newAuctionTemplate)
+
+        // Show the auction
+        $newAuctionTemplate.show()
+      })
     }
   },
 
   createAuction: async () => {
     App.setLoading(true)
     const itemName = $('#newAuction').val()
-    //const ownerAddress = $('#auctionOwnerAddress').val()
     const startPrice = $('#startPrice').val()
+    const startPriceInWei = web3.toWei(startPrice, 'ether');
     const deadline = dateToUint(new Date($('#deadline').val()))
-    await App.auctionList.createAuction(itemName, startPrice, deadline);
+
+    await App.auctionList.createAuction(itemName, startPriceInWei, deadline);
     window.location.reload()
   },
 
   makeBid: async (id) => {
     App.setLoading(true)
     const bidValue = $('#bidValue'+id).val()
-    await App.auctionList.makeBid(id, bidValue);
+
+    const bidInWei = web3.toWei(bidValue, 'ether');
+    await App.auctionList.makeBid(id, bidInWei, {value: bidInWei});
     window.location.reload()
   },
 

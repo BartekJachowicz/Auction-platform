@@ -4,7 +4,7 @@ contract AuctionList {
     uint public auctionNumber = 0;
 
     struct Bid {
-        uint bidPrice;
+        uint256 bidPrice;
         address payable BidAddress;
     }
 
@@ -12,11 +12,11 @@ contract AuctionList {
         uint id;
         string auctionObject;
         address payable ownerAddress;
-        uint startPrice;
+        uint256 startPrice;
         uint256 deadline;
         address payable highestBidAddress;
-        uint highestBid;
-        uint numberOfBids;
+        uint256 highestBid;
+        uint256 numberOfBids;
     }
 
     constructor() public {}
@@ -28,22 +28,22 @@ contract AuctionList {
         uint id,
         string auctionObject,
         address payable ownerAddress,
-        uint startPrice,
+        uint256 startPrice,
         uint256 deadline,
         address payable highestBidAddress,
-        uint highestBid,
-        uint numberOfBids
+        uint256 highestBid,
+        uint256 numberOfBids
     );
 
     event BidDone(
         uint auctionID,
-        uint highestBid,
+        uint256 highestBid,
         address payable highestBidAddress
     );
 
     event AuctionEnded(
         uint auctionID,
-        uint highestBid,
+        uint256 highestBid,
         address payable highestBidAddress
     );
 
@@ -59,19 +59,16 @@ contract AuctionList {
     } 
 
 
-    function createAuction(string memory auctionObject, uint startPrice, uint256 deadline) public {
+    function createAuction(string memory auctionObject, uint256 startPrice, uint256 deadline) public {
         address payable ownerAddress = msg.sender;
         auctionNumber ++;
         auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0);
         emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0);
     }
 
-    function makeBid(uint auctionID, uint bidPrice) public payable liveAuction(auctionID) returns(bool){
-        if(bidPrice < auctions[auctionID].highestBid){
-            return false;
-        }
-        // TODO: check how require works and how to use it properly
-        // require(bidPrice > auctions[auctionID].highestBid, "ERROR!");
+    function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns(bool){
+        require(bidPrice > auctions[auctionID].highestBid, "Bid to low!");
+        require(msg.value >= bidPrice, "Wrong message value!");
 
         auctions[auctionID].highestBid = bidPrice;
         auctions[auctionID].highestBidAddress = msg.sender;
@@ -101,5 +98,19 @@ contract AuctionList {
         auctionNumber --;
         
         emit AuctionEnded(endedAuction.id, endedAuction.highestBid, endedAuction.highestBidAddress);
+    }
+
+    function getAuction(uint auctionID) public returns (uint, string memory, address, uint256, uint256, address, uint256, uint256) {
+        Auction memory a = auctions[auctionID];
+
+        return (a.id,
+        a.auctionObject,
+        a.ownerAddress,
+        a.startPrice,
+        a.deadline,
+        a.highestBidAddress,
+        a.highestBid,
+        a.numberOfBids
+        );
     }
 }
