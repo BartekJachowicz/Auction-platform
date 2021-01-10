@@ -135,7 +135,6 @@ App = {
 
   endAuction: async (id) => {
     App.setLoading(true)
-    console.log(id)
     await App.auctionList.endAuction(id)
     window.location.reload()
   },
