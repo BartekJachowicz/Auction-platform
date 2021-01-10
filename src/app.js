@@ -105,6 +105,8 @@ App = {
                       .prop('name', auctionId)
       $newAuctionTemplate.find('input')
                       .prop('id', "bidValue"+auctionId)
+      $newAuctionTemplate.find('button')
+                      .prop('name', auctionId)
 
       // Put the auctions in the correct list
       $('#auctionList').append($newAuctionTemplate)
@@ -128,6 +130,13 @@ App = {
     App.setLoading(true)
     const bidValue = $('#bidValue'+id).val()
     await App.auctionList.makeBid(id, bidValue);
+    window.location.reload()
+  },
+
+  endAuction: async (id) => {
+    App.setLoading(true)
+    console.log(id)
+    await App.auctionList.endAuction(id)
     window.location.reload()
   },
 

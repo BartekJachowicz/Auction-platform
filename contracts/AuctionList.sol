@@ -85,7 +85,21 @@ contract AuctionList {
 
     function endAuction(uint auctionID) public payable onlyOwner(auctionID) {
         require(now >= auctions[auctionID].deadline);
+
+        Auction memory endedAuction = auctions[auctionID];
+
+        // TODO: Here we need to pay bids to losers
+
+        auctions[auctionID] = auctions[auctionNumber];
+        auctionIdsToBids[auctionID] = auctionIdsToBids[auctionNumber];
+
+        auctions[auctionID].id = auctionID;
+
+        delete auctions[auctionNumber];
+        delete auctionIdsToBids[auctionNumber];
+
+        auctionNumber --;
         
-        emit AuctionEnded(auctionID, auctions[auctionID].highestBid, auctions[auctionID].highestBidAddress);
+        emit AuctionEnded(endedAuction.id, endedAuction.highestBid, endedAuction.highestBidAddress);
     }
 }
