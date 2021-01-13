@@ -66,7 +66,7 @@ contract AuctionList {
         emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0);
     }
 
-    function getAuction(uint auctionID) public returns (uint, string memory, address, uint256, uint256, address, uint256, uint256) {
+    function getAuction(uint auctionID) public view returns (uint, string memory, address, uint256, uint256, address, uint256, uint256) {
         Auction memory a = auctions[auctionID];
 
         return (a.id,
@@ -138,5 +138,17 @@ contract AuctionList {
         uint256 winningBid = endedAuction.highestBid;
 
         ownerAddress.transfer(winningBid);
+    }
+
+    function getSumOfPreviousBids(address bidder, uint auctionID) public view returns(uint256){
+        uint256 sum = 0;
+        for(uint256 i = 0; i < auctions[auctionID].numberOfBids; i++){
+            Bid memory current = auctionIdsToBids[auctionID][i];
+            if(current.BidAddress == bidder){
+                sum += current.bidPrice;
+            }
+        }
+
+        return sum;
     }
 }
