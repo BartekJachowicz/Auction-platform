@@ -129,11 +129,10 @@ App = {
 
   makeBid: async (id) => {
     App.setLoading(true)
-    const bidderAddress = web3.eth.accounts[0];
     const bidValue = $('#bidValue'+id).val()
 
     const bidInWei = web3.toWei(bidValue, 'ether');
-    var sumOfPreviousBids;
+    var sumOfPreviousBids = 0;
     await App.auctionList.getSumOfPreviousBids.call(id).then(function(result) {
         console.log(result)
         sumOfPreviousBids = result.c[0].toNumber();
@@ -171,6 +170,31 @@ function uintToDate(timestamp){
 function dateToUint(date) {
   return date.getTime()/1000
 }
+
+window.addEventListener('load', async () => {
+  // Modern dapp browsers...
+  if (window.ethereum) {
+    window.web3 = new Web3(ethereum);
+    try {
+      // Request account access if needed
+      await ethereum.enable();
+      // Acccounts now exposed
+      web3.eth.sendTransaction({/* ... */});
+    } catch (error) {
+      // User denied account access...
+    }
+  }
+  // Legacy dapp browsers...
+  else if (window.web3) {
+    window.web3 = new Web3(web3.currentProvider);
+    // Acccounts always exposed
+    web3.eth.sendTransaction({/* ... */});
+  }
+  // Non-dapp browsers...
+  else {
+    console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+  }
+});
 
 $(() => {
   $(window).load(() => {
