@@ -66,6 +66,20 @@ contract AuctionList {
         emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0);
     }
 
+    function getAuction(uint auctionID) public returns (uint, string memory, address, uint256, uint256, address, uint256, uint256) {
+        Auction memory a = auctions[auctionID];
+
+        return (a.id,
+        a.auctionObject,
+        a.ownerAddress,
+        a.startPrice,
+        a.deadline,
+        a.highestBidAddress,
+        a.highestBid,
+        a.numberOfBids
+        );
+    }
+
     function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns(bool){
         require(bidPrice > auctions[auctionID].highestBid, "Bid to low!");
         require(msg.value >= bidPrice, "Wrong message value!");
@@ -85,8 +99,29 @@ contract AuctionList {
 
         Auction memory endedAuction = auctions[auctionID];
 
-        // TODO: Here we need to pay bids to losers
+        payBidToLosers(endedAuction);
+        sendWinningBidToOwner(endedAuction);
 
+        deleteAuction(auctionID);
+        
+        emit AuctionEnded(endedAuction.id, endedAuction.highestBid, endedAuction.highestBidAddress);
+    }
+
+    function payBidToLosers(Auction memory endedAuction) private {
+        address winnerAddress = endedAuction.highestBidAddress;
+        uint256 winningBid = endedAuction.highestBid;
+
+        for(uint256 i = 0; i < endedAuction.numberOfBids; i++){
+            Bid memory current = auctionIdsToBids[endedAuction.id][i];
+            if(current.BidAddress == winnerAddress && current.bidPrice == winningBid){
+                continue;
+            }
+
+            current.BidAddress.transfer(current.bidPrice);
+        }
+    }
+
+    function deleteAuction(uint auctionID) private {
         auctions[auctionID] = auctions[auctionNumber];
         auctionIdsToBids[auctionID] = auctionIdsToBids[auctionNumber];
 
@@ -96,21 +131,12 @@ contract AuctionList {
         delete auctionIdsToBids[auctionNumber];
 
         auctionNumber --;
-        
-        emit AuctionEnded(endedAuction.id, endedAuction.highestBid, endedAuction.highestBidAddress);
     }
 
-    function getAuction(uint auctionID) public returns (uint, string memory, address, uint256, uint256, address, uint256, uint256) {
-        Auction memory a = auctions[auctionID];
+    function sendWinningBidToOwner(Auction memory endedAuction) private {
+        address payable ownerAddress = endedAuction.ownerAddress;
+        uint256 winningBid = endedAuction.highestBid;
 
-        return (a.id,
-        a.auctionObject,
-        a.ownerAddress,
-        a.startPrice,
-        a.deadline,
-        a.highestBidAddress,
-        a.highestBid,
-        a.numberOfBids
-        );
+        ownerAddress.transfer(winningBid);
     }
 }
