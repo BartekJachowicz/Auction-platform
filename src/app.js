@@ -133,7 +133,12 @@ App = {
     const bidValue = $('#bidValue'+id).val()
 
     const bidInWei = web3.toWei(bidValue, 'ether');
-    const sumOfPreviousBids = await App.auctionList.getSumOfPreviousBids(bidderAddress, id)
+    var sumOfPreviousBids;
+    await App.auctionList.getSumOfPreviousBids.call(id).then(function(result) {
+        console.log(result)
+        sumOfPreviousBids = result.c[0].toNumber();
+    })
+    
     console.log(sumOfPreviousBids)
     await App.auctionList.makeBid(id, bidInWei, {value: bidInWei});
     window.location.reload()

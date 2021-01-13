@@ -140,8 +140,9 @@ contract AuctionList {
         ownerAddress.transfer(winningBid);
     }
 
-    function getSumOfPreviousBids(address bidder, uint auctionID) public view returns(uint256){
+    function getSumOfPreviousBids(uint auctionID) public view returns(uint256){
         uint256 sum = 0;
+        address bidder = msg.sender;
         for(uint256 i = 0; i < auctions[auctionID].numberOfBids; i++){
             Bid memory current = auctionIdsToBids[auctionID][i];
             if(current.BidAddress == bidder){
@@ -149,6 +150,6 @@ contract AuctionList {
             }
         }
 
-        return sum;
+        return (sum);
     }
 }
