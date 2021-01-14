@@ -82,13 +82,14 @@ contract AuctionList {
 
     function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns(bool){
         require(bidPrice > auctions[auctionID].highestBid, "Bid to low!");
-        require(msg.value >= bidPrice, "Wrong message value!");
+        (,uint256 sumOfPreviousBids) = getSumOfPreviousBids(auctionID);
+        require(msg.value + sumOfPreviousBids >= bidPrice, "Wrong message value!");
 
         auctions[auctionID].highestBid = bidPrice;
         auctions[auctionID].highestBidAddress = msg.sender;
         auctions[auctionID].numberOfBids ++;
 
-        auctionIdsToBids[auctionID].push(Bid(bidPrice, msg.sender));
+        auctionIdsToBids[auctionID].push(Bid(bidPrice - sumOfPreviousBids, msg.sender));
         emit BidDone(auctionID, bidPrice, msg.sender);
 
         return true;
@@ -140,7 +141,7 @@ contract AuctionList {
         ownerAddress.transfer(winningBid);
     }
 
-    function getSumOfPreviousBids(uint auctionID) public view returns(uint256){
+    function getSumOfPreviousBids(uint auctionID) public view returns(uint, uint256){
         uint256 sum = 0;
         address bidder = msg.sender;
         for(uint256 i = 0; i < auctions[auctionID].numberOfBids; i++){
@@ -150,6 +151,6 @@ contract AuctionList {
             }
         }
 
-        return (sum);
+        return (auctionID, sum);
     }
 }

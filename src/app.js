@@ -134,12 +134,10 @@ App = {
     const bidInWei = web3.toWei(bidValue, 'ether');
     var sumOfPreviousBids = 0;
     await App.auctionList.getSumOfPreviousBids.call(id).then(function(result) {
-        console.log(result)
-        sumOfPreviousBids = result.c[0].toNumber();
+        sumOfPreviousBids = result[1].toNumber();
     })
-    
-    console.log(sumOfPreviousBids)
-    await App.auctionList.makeBid(id, bidInWei, {value: bidInWei});
+
+    await App.auctionList.makeBid(id, bidInWei, {value: (bidInWei - sumOfPreviousBids)});
     window.location.reload()
   },
 
