@@ -85,7 +85,7 @@ contract AuctionList {
         (,uint256 sumOfPreviousBids) = getSumOfPreviousBids(auctionID);
         require(msg.value + sumOfPreviousBids >= bidPrice, "Wrong message value!");
 
-        auctions[auctionID].highestBid = bidPrice;
+        auctions[auctionID].highestBid = bidPrice + sumOfPreviousBids;
         auctions[auctionID].highestBidAddress = msg.sender;
         auctions[auctionID].numberOfBids ++;
 
