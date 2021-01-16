@@ -83,14 +83,15 @@ contract AuctionList {
     function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns(bool){
         require(bidPrice > auctions[auctionID].highestBid, "Bid to low!");
         (,uint256 sumOfPreviousBids) = getSumOfPreviousBids(auctionID);
-        require(msg.value + sumOfPreviousBids >= bidPrice, "Wrong message value!");
+        uint256 overallBid = msg.value + sumOfPreviousBids;
+        require(overallBid >= bidPrice, "Wrong message value!");
 
-        auctions[auctionID].highestBid = bidPrice + sumOfPreviousBids;
+        auctions[auctionID].highestBid = overallBid;
         auctions[auctionID].highestBidAddress = msg.sender;
-        auctions[auctionID].numberOfBids ++;
 
-        auctionIdsToBids[auctionID].push(Bid(bidPrice - sumOfPreviousBids, msg.sender));
-        emit BidDone(auctionID, bidPrice, msg.sender);
+        updateBid(msg.sender, overallBid, auctionID);
+
+        emit BidDone(auctionID, overallBid, msg.sender);
 
         return true;
     }
@@ -152,5 +153,23 @@ contract AuctionList {
         }
 
         return (auctionID, sum);
+    }
+
+    function updateBid(address payable bidder, uint256 value, uint auctionID) private {
+        bool exists = false;
+
+        for(uint256 i = 0; i < auctions[auctionID].numberOfBids; i++){
+            Bid storage current = auctionIdsToBids[auctionID][i];
+            if(current.BidAddress == bidder){
+                current.bidPrice = value;
+                exists = true;
+                break;
+            }
+        }
+
+        if(!exists) {
+            auctions[auctionID].numberOfBids ++;
+            auctionIdsToBids[auctionID].push(Bid(value, bidder));
+        }
     }
 }
