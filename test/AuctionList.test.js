@@ -24,7 +24,7 @@ contract('AuctionList', (accounts) => {
     var event = result.logs[0].args
     assert.equal(event.id.toNumber(), 1)
 
-    date = new Date(2020, 06, 12)
+    date = new Date(2021, 06, 12)
     deadline = date.getTime()/1000
     result = await this.auctionList.createAuction('Auction2', 10, deadline)
     auctionNumber = await this.auctionList.auctionNumber()

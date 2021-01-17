@@ -53,13 +53,19 @@ contract AuctionList {
         _;
     }
 
+    modifier validDeadline(uint256 deadline) {
+        // Deadline cannot be from the past
+        require(now < deadline);
+        _;
+    }
+
     modifier onlyOwner(uint auctionID) { 
         require(msg.sender == auctions[auctionID].ownerAddress);
         _;
     } 
 
 
-    function createAuction(string memory auctionObject, uint256 startPrice, uint256 deadline) public {
+    function createAuction(string memory auctionObject, uint256 startPrice, uint256 deadline) validDeadline(deadline) public {
         address payable ownerAddress = msg.sender;
         auctionNumber ++;
         auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0);
