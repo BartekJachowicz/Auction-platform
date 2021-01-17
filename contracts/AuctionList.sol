@@ -17,6 +17,7 @@ contract AuctionList {
         address payable highestBidAddress;
         uint256 highestBid;
         uint256 numberOfBids;
+        bool ended;
     }
 
     constructor() public {}
@@ -32,7 +33,8 @@ contract AuctionList {
         uint256 deadline,
         address payable highestBidAddress,
         uint256 highestBid,
-        uint256 numberOfBids
+        uint256 numberOfBids,
+        bool ended
     );
 
     event BidDone(
@@ -62,12 +64,16 @@ contract AuctionList {
     function createAuction(string memory auctionObject, uint256 startPrice, uint256 deadline) public {
         address payable ownerAddress = msg.sender;
         auctionNumber ++;
-        auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0);
-        emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0);
+        auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0, false);
+        emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, startPrice, 0, false);
     }
 
-    function getAuction(uint auctionID) public view returns (uint, string memory, address, uint256, uint256, address, uint256, uint256) {
-        Auction memory a = auctions[auctionID];
+    function getAuction(uint auctionID) public returns (uint, string memory, address, uint256, uint256, address, uint256, uint256, bool) {
+        Auction storage a = auctions[auctionID];
+        if (!a.ended && now >= a.deadline) {
+            a.ended = true;
+            //endAuction(auctionID);
+        }
 
         return (a.id,
         a.auctionObject,
@@ -76,7 +82,8 @@ contract AuctionList {
         a.deadline,
         a.highestBidAddress,
         a.highestBid,
-        a.numberOfBids
+        a.numberOfBids,
+        a.ended
         );
     }
 
@@ -97,8 +104,11 @@ contract AuctionList {
     }
 
     function endAuction(uint auctionID) public payable {
-        require(now >= auctions[auctionID].deadline);
+        if (now < auctions[auctionID].deadline) {
+            return;
+        }
 
+        auctions[auctionID].ended = true;
         Auction memory endedAuction = auctions[auctionID];
 
         payBidToLosers(endedAuction);
@@ -129,10 +139,10 @@ contract AuctionList {
 
         auctions[auctionID].id = auctionID;
 
-        delete auctions[auctionNumber];
-        delete auctionIdsToBids[auctionNumber];
+        //delete auctions[auctionNumber];
+        //delete auctionIdsToBids[auctionNumber];
 
-        auctionNumber --;
+        //auctionNumber --;
     }
 
     function sendWinningBidToOwner(Auction memory endedAuction) private {

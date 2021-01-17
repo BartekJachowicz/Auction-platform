@@ -84,6 +84,7 @@ App = {
     // Render out each task with a new task template
     for (var i = 1; i <= auctionNumber; i++) {
       App.auctionList.getAuction.call(i).then(function(result) {
+        console.log(result)
         const auctionId = result[0].toNumber()
         const auctionContent = result[1]
         const auctionStartPrice = web3.fromWei(result[3].toNumber())
