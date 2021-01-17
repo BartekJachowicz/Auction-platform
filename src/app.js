@@ -121,7 +121,12 @@ App = {
     const itemName = $('#newAuction').val()
     const startPrice = $('#startPrice').val()
     const startPriceInWei = web3.toWei(startPrice, 'ether');
-    const deadline = dateToUint(new Date($('#deadline').val()))
+    var date = new Date($('#deadline-date').val())
+    var time = $('#deadline-time').val()
+    var hours = time.split(":")[0];
+    var minutes = time.split(":")[1]
+    date.setHours(hours, minutes)
+    const deadline = dateToUint(date)
 
     await App.auctionList.createAuction(itemName, startPriceInWei, deadline);
     window.location.reload()
