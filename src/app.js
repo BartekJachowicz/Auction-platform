@@ -135,14 +135,25 @@ App = {
   makeBid: async (id) => {
     App.setLoading(true)
     const bidValue = $('#bidValue'+id).val()
+    const bidInWei = web3.toWei(bidValue, 'ether')
 
-    const bidInWei = web3.toWei(bidValue, 'ether');
-    var sumOfPreviousBids = 0;
-    await App.auctionList.getSumOfPreviousBids.call(id).then(function(result) {
-        sumOfPreviousBids = result[1].toNumber();
+    var payoffsWithBid = 0
+    await App.auctionList.getPayoffsWithBid.call(id).then(function(result) {
+      payoffsWithBid = result.toNumber();
     })
 
-    await App.auctionList.makeBid(id, bidInWei, {value: (bidInWei - sumOfPreviousBids)});
+    if (payoffsWithBid >= bidInWei) {
+      await App.auctionList.makeBid(id, bidInWei, {value: 0})
+    }
+    else {
+      await App.auctionList.makeBid(id, bidInWei, {value: (bidInWei - payoffsWithBid)});
+    }
+    window.location.reload()
+  },
+
+  returnPayoffs: async() => {
+    App.setLoading(true)
+    await App.auctionList.returnPayoffs()
     window.location.reload()
   },
 
