@@ -152,6 +152,10 @@ contract AuctionList {
       return result;
     }
 
+    function getPayoff(address adr) public view returns (address, uint256) {
+        return (adr, payoffs[adr]);
+    }
+
     function returnPayoffs() public {
       uint payoff = payoffs[msg.sender];
       if (payoff == 0)
