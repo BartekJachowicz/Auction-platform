@@ -40,8 +40,6 @@ contract('AuctionList', (accounts) => {
     assert.equal(result[0].toNumber(), 2)
     assert.equal(result[1], 'Auction2')
     assert.equal(result[3].toNumber(), 2)
-    // There should be no bids at this time
-    assert.equal(result[7].toNumber(), 0)
   })
 
   it('make highest bid', async () => {
@@ -58,7 +56,7 @@ contract('AuctionList', (accounts) => {
         assert.fail("The transaction should have thrown an error");
     }
     catch (err) {
-        assert.include(err.message, "Bid to low", "The error message should contain 'Bid to low'");
+        assert.include(err.message, "Bid too low", "The error message should contain 'Bid too low'");
     }   
   })
 
@@ -69,7 +67,6 @@ contract('AuctionList', (accounts) => {
     assert.equal(result[1], 'Auction1')
     assert.equal(result[3].toNumber(), 1)
     assert.equal(result[6].toNumber(), 2)
-    assert.equal(result[7].toNumber(), 1)
   })
 
   it('end not finished auction', async () => {
