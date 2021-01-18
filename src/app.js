@@ -90,6 +90,7 @@ App = {
         const auctionDeadline = uintToDate(result[4])
         const highestBidderAddress = result[5]
         const highestBid = web3.fromWei(result[6].toNumber())
+        const ended = Boolean(result[7])
 
 
 
@@ -101,11 +102,17 @@ App = {
         $newAuctionTemplate.find('.highestbid').html(highestBid)
         $newAuctionTemplate.find('.bidderaddress').html(highestBidderAddress)
         $newAuctionTemplate.find('form')
-                        .prop('name', auctionId)
+            .prop('name', auctionId)
         $newAuctionTemplate.find('input')
-                        .prop('id', "bidValue"+auctionId)
+            .prop('id', "bidValue" + auctionId)
+        $newAuctionTemplate.find('input').prop('disabled', ended)
         $newAuctionTemplate.find('button')
-                        .prop('name', auctionId)
+            .prop('name', auctionId)
+        $newAuctionTemplate.find('button').prop('disabled', ended)
+
+        if (ended) {
+          $newAuctionTemplate.addClass('completedAuction')
+        }
 
         // Put the auctions in the correct list
         $('#auctionList').append($newAuctionTemplate)
