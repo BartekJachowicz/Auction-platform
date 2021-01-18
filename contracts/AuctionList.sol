@@ -122,7 +122,8 @@ contract AuctionList {
 
         sendWinningBidToOwner(endedAuction);
         deleteAuction(auctionID);
-        
+
+        tryToDeleteOtherAuctions();
         emit AuctionEnded(endedAuction.id, endedAuction.highestBid, endedAuction.highestBidAddress);
     }
     
@@ -134,7 +135,7 @@ contract AuctionList {
     }
 
     function deleteAuction(uint auctionID) private {
-        if (auctions[auctionID].deadline + 10 days > now) {
+        if (!auctions[auctionID].ended || auctions[auctionID].deadline + 1 days > now) {
             return;
         }
 
@@ -143,6 +144,12 @@ contract AuctionList {
 
         delete auctions[auctionNumber];
         auctionNumber --;
+    }
+
+    function tryToDeleteOtherAuctions() private {
+        for(uint256 i = 0; i < auctionNumber; i++) {
+            deleteAuction(i);
+        }
     }
 
     function getPayoffsWithBid(uint auctionId) public view returns (uint256) {
