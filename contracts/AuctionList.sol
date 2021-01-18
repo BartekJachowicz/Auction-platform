@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 contract AuctionList {
     uint public auctionNumber = 0;
+    uint256 private SMALLEST_TICK_IN_WEI = 500000000000000; // 0.0005 ETH approx to 0.6 USD
 
     struct Bid {
         uint256 bidPrice;
@@ -86,8 +87,8 @@ contract AuctionList {
     }
 
     function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns (bool) {
-        require(bidPrice > auctions[auctionID].highestBid, "Bid too low!");
-        require(bidPrice > auctions[auctionID].startPrice, "Bid too low!");
+        require(bidPrice >= auctions[auctionID].highestBid + SMALLEST_TICK_IN_WEI, "Bid too low!");
+        require(bidPrice >= auctions[auctionID].startPrice + SMALLEST_TICK_IN_WEI, "Bid too low!");
         require(msg.value + getPayoffsWithBid(auctionID) >= bidPrice, "Wrong message value!");
 
         address prevHighestBidderAddress = auctions[auctionID].highestBidAddress;

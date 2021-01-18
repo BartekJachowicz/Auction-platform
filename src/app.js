@@ -94,7 +94,7 @@ App = {
         const ended = Boolean(result[7])
 
         if(highestBid == 0) {
-          highestBid = "there were no bids yet"
+          highestBid = auctionStartPrice
         }
 
 
