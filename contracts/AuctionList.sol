@@ -16,6 +16,7 @@ contract AuctionList {
         uint256 deadline;
         address payable highestBidAddress;
         uint256 highestBid;
+        bool ended;
     }
 
     constructor() public {}
@@ -30,7 +31,8 @@ contract AuctionList {
         uint256 startPrice,
         uint256 deadline,
         address payable highestBidAddress,
-        uint256 highestBid
+        uint256 highestBid,
+        bool ended
     );
 
     event BidDone(
@@ -66,11 +68,11 @@ contract AuctionList {
     function createAuction(string memory auctionObject, uint256 startPrice, uint256 deadline) validDeadline(deadline) public {
         address payable ownerAddress = msg.sender;
         auctionNumber ++;
-        auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, 0);
-        emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, 0);
+        auctions[auctionNumber] = Auction(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, 0, false);
+        emit AuctionCreated(auctionNumber, auctionObject, ownerAddress, startPrice, deadline, ownerAddress, 0, false);
     }
 
-    function getAuction(uint auctionID) public view returns (uint, string memory, address, uint256, uint256, address, uint256) {
+    function getAuction(uint auctionID) public view returns (uint, string memory, address, uint256, uint256, address, uint256, bool) {
         Auction memory a = auctions[auctionID];
 
         return (a.id,
@@ -79,11 +81,13 @@ contract AuctionList {
         a.startPrice,
         a.deadline,
         a.highestBidAddress,
-        a.highestBid);
+        a.highestBid,
+        a.ended);
     }
 
     function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns (bool) {
         require(bidPrice > auctions[auctionID].highestBid, "Bid too low!");
+        require(bidPrice > auctions[auctionID].startPrice, "Bid too low!");
         require(msg.value + getPayoffsWithBid(auctionID) >= bidPrice, "Wrong message value!");
 
         address prevHighestBidderAddress = auctions[auctionID].highestBidAddress;
@@ -107,7 +111,13 @@ contract AuctionList {
 
     function endAuction(uint auctionID) public payable {
         require(now >= auctions[auctionID].deadline);
-        Auction memory endedAuction = auctions[auctionID];
+        Auction storage endedAuction = auctions[auctionID];
+        if (endedAuction.ended) {
+            deleteAuction(auctionID);
+            return;
+        }
+
+        endedAuction.ended = true;
 
         sendWinningBidToOwner(endedAuction);
         deleteAuction(auctionID);
@@ -123,6 +133,10 @@ contract AuctionList {
     }
 
     function deleteAuction(uint auctionID) private {
+        if (auctions[auctionID].deadline + 10 days > now) {
+            return;
+        }
+
         auctions[auctionID] = auctions[auctionNumber];
         auctions[auctionID].id = auctionID;
 
