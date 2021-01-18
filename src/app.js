@@ -68,6 +68,7 @@ App = {
 
     // Render Account
     $('#account').html(App.account)
+    await App.getPayoff()
 
     // Render Auctions
     await App.renderAuctions()
@@ -89,7 +90,11 @@ App = {
         const auctionStartPrice = web3.fromWei(result[3].toNumber())
         const auctionDeadline = uintToDate(result[4])
         const highestBidderAddress = result[5]
-        const highestBid = web3.fromWei(result[6].toNumber())
+        var highestBid = web3.fromWei(result[6].toNumber())
+
+        if(highestBid == 0) {
+          highestBid = "there were no bids yet"
+        }
 
 
 
@@ -161,6 +166,15 @@ App = {
     App.setLoading(true)
     await App.auctionList.endAuction(id)
     window.location.reload()
+  },
+
+  getPayoff: async() => {
+    var payoff;
+    await App.auctionList.getPayoff.call(App.account).then(function(result) {
+      payoff = result[1].toNumber()
+    })
+    const payoffInEth = web3.fromWei(payoff)
+    $('#payoff-span').html(payoffInEth)
   },
 
   setLoading: (boolean) => {
