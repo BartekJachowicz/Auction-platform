@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 contract AuctionList {
     uint public auctionNumber = 0;
     uint256 private SMALLEST_TICK_IN_WEI = 500000000000000; // 0.0005 ETH approx to 0.6 USD
+    uint public MAXIMUM_NUMBER_OF_DELETED_AUCTIONS = 12;
 
     struct Bid {
         uint256 bidPrice;
@@ -20,10 +21,18 @@ contract AuctionList {
         bool ended;
     }
 
+    struct DeletedAuctionsParams {
+        uint size;
+        uint first;
+        uint last;
+    }
+
     constructor() public {}
 
     mapping(uint => Auction) public auctions;
     mapping(address => uint256) public payoffs;
+    mapping(uint => Auction) public deletedAuctionsArray;
+    DeletedAuctionsParams public delAuctionsParams = DeletedAuctionsParams(0,0,0);
 
     event AuctionCreated(
         uint id,
@@ -86,6 +95,23 @@ contract AuctionList {
         a.ended);
     }
 
+    function getDeletedAuction(uint auctionID) public view returns (uint, string memory, address, uint256, uint256, address, uint256, bool) {
+        Auction memory a = deletedAuctionsArray[auctionID];
+
+        return (a.id,
+        a.auctionObject,
+        a.ownerAddress,
+        a.startPrice,
+        a.deadline,
+        a.highestBidAddress,
+        a.highestBid,
+        a.ended);
+    }
+
+    function getDeletedAuctionsParams() public view returns (uint, uint, uint) {
+        return (delAuctionsParams.first, delAuctionsParams.last, delAuctionsParams.size);
+    }
+
     function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns (bool) {
         require(bidPrice >= auctions[auctionID].highestBid + SMALLEST_TICK_IN_WEI, "Bid too low!");
         require(bidPrice >= auctions[auctionID].startPrice + SMALLEST_TICK_IN_WEI, "Bid too low!");
@@ -121,9 +147,9 @@ contract AuctionList {
         endedAuction.ended = true;
 
         sendWinningBidToOwner(endedAuction);
+        addAuctionToDeleted(endedAuction);
         deleteAuction(auctionID);
 
-        tryToDeleteOtherAuctions();
         emit AuctionEnded(endedAuction.id, endedAuction.highestBid, endedAuction.highestBidAddress);
     }
     
@@ -135,10 +161,6 @@ contract AuctionList {
     }
 
     function deleteAuction(uint auctionID) private {
-        if (!auctions[auctionID].ended || auctions[auctionID].deadline + 1 days > now) {
-            return;
-        }
-
         auctions[auctionID] = auctions[auctionNumber];
         auctions[auctionID].id = auctionID;
 
@@ -146,10 +168,18 @@ contract AuctionList {
         auctionNumber --;
     }
 
-    function tryToDeleteOtherAuctions() private {
-        for(uint256 i = 0; i < auctionNumber; i++) {
-            deleteAuction(i);
+    function addAuctionToDeleted(Auction storage auction) private {
+        if (delAuctionsParams.size < MAXIMUM_NUMBER_OF_DELETED_AUCTIONS) {
+            deletedAuctionsArray[delAuctionsParams.size] = auction;
+            delAuctionsParams.size++;
+            delAuctionsParams.last = (delAuctionsParams.last + 1) % MAXIMUM_NUMBER_OF_DELETED_AUCTIONS;
+            return;
         }
+
+        delete deletedAuctionsArray[delAuctionsParams.first];
+        deletedAuctionsArray[delAuctionsParams.first] = auction;
+        delAuctionsParams.last = delAuctionsParams.first;
+        delAuctionsParams.first = (delAuctionsParams.first + 1) % MAXIMUM_NUMBER_OF_DELETED_AUCTIONS;
     }
 
     function getPayoffsWithBid(uint auctionId) public view returns (uint256) {
