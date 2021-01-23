@@ -45,10 +45,11 @@ contract('MainAuctionList', (accounts) => {
   it('make highest bid', async () => {
     // Make new highest bid for the first auction
     const SMALLEST_TICK_IN_WEI = 500000000000000;
-    var result = await this.auctionList.makeBid(1, 2 + SMALLEST_TICK_IN_WEI, {value: 2 + SMALLEST_TICK_IN_WEI})
+    var result = await this.auctionList.makeBid(1, 2 + SMALLEST_TICK_IN_WEI, {value: 2 + SMALLEST_TICK_IN_WEI, from: accounts[0]})
     var event = result.logs[0].args
     assert.equal(event.auctionID.toNumber(), 1)
     assert.equal(event.highestBid.toNumber(), 2 + SMALLEST_TICK_IN_WEI)   
+    assert.equal(event.highestBidAddress, accounts[0])
   })
 
   it('make lower bid', async () => {

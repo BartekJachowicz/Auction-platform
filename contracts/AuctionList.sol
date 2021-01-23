@@ -57,14 +57,12 @@ contract AuctionList {
     );
 
     modifier liveAuction(uint auctionId) {
-        // Auction should not be ended
-        require(now < auctions[auctionId].deadline);
+        require(now < auctions[auctionId].deadline, "Auction should be still live");
         _;
     }
 
     modifier validDeadline(uint256 deadline) {
-        // Deadline cannot be from the past
-        require(now < deadline);
+        require(now < deadline, "Deadline cannot be from the past");
         _;
     }
 

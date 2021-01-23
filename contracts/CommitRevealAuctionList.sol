@@ -10,26 +10,26 @@ contract CommitRevealAuctionList is MainAuctionList {
     uint blockNumber;
   }
 
+  event BidCommitted(
+    uint auctionId,
+    bytes32 bidHash,
+    uint blockNumber
+  );
+
   mapping(address => BidCommit) public commits;
 
-  function stringToBytes32(string memory source) private pure returns (bytes32 result) {
-    bytes memory tempEmptyStringTest = bytes(source);
-    if (tempEmptyStringTest.length == 0) {
-        return 0x0;
-    }
-
-    assembly {
-        result := mload(add(source, 32))
-    }
-}
-
-  function commit(uint auctionId, string memory bidHash) public liveAuction(auctionId) {
-    commits[msg.sender] = BidCommit(auctionId, stringToBytes32(bidHash), block.number);
+  function commit(uint auctionId, bytes32 bidHash) public liveAuction(auctionId) {
+    commits[msg.sender] = BidCommit(auctionId, bidHash, block.number);
+    emit BidCommitted(auctionId, bidHash, block.number);
   }
 
   function reveal(uint auctionId, uint256 bid, uint256 randomNonce) public payable liveAuction(auctionId) {
-    require(commits[msg.sender].blockNumber + 100 <= block.number);
-    require(commits[msg.sender].bidHash == keccak256(abi.encodePacked(msg.sender, auctionId, bid, randomNonce)));
+    require(commits[msg.sender].blockNumber + 100 <= block.number, "Too early reveal");
+    require(commits[msg.sender].bidHash == hash(auctionId, bid, randomNonce), "Incorrect hash");
     makeBid(auctionId, bid);
+  }
+
+  function hash(uint auctionId, uint256 bid, uint256 randomNonce) public view returns (bytes32 result) {
+    return keccak256(abi.encodePacked(msg.sender, auctionId, bid, randomNonce));
   }
 }
