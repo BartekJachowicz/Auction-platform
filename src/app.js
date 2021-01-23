@@ -68,9 +68,12 @@ App = {
 
     // Render Account
     $('#account').html(App.account)
+    await App.getPayoff()
 
     // Render Auctions
     await App.renderAuctions()
+
+    await App.renderDeletedAuctions()
 
     // Update loading state
     App.setLoading(false)
@@ -89,7 +92,12 @@ App = {
         const auctionStartPrice = web3.fromWei(result[3].toNumber())
         const auctionDeadline = uintToDate(result[4])
         const highestBidderAddress = result[5]
-        const highestBid = web3.fromWei(result[6].toNumber())
+        var highestBid = web3.fromWei(result[6].toNumber())
+        const ended = Boolean(result[7])
+
+        if(highestBid == 0) {
+          highestBid = auctionStartPrice
+        }
 
 
 
@@ -101,11 +109,17 @@ App = {
         $newAuctionTemplate.find('.highestbid').html(highestBid)
         $newAuctionTemplate.find('.bidderaddress').html(highestBidderAddress)
         $newAuctionTemplate.find('form')
-                        .prop('name', auctionId)
+            .prop('name', auctionId)
         $newAuctionTemplate.find('input')
-                        .prop('id', "bidValue"+auctionId)
+            .prop('id', "bidValue2" + auctionId)
+        $newAuctionTemplate.find('input').prop('disabled', ended)
         $newAuctionTemplate.find('button')
-                        .prop('name', auctionId)
+            .prop('name', auctionId)
+        $newAuctionTemplate.find('button').prop('disabled', ended)
+
+        if (ended) {
+          $newAuctionTemplate.addClass('completedAuction')
+        }
 
         // Put the auctions in the correct list
         $('#auctionList').append($newAuctionTemplate)
@@ -113,6 +127,64 @@ App = {
         // Show the auction
         $newAuctionTemplate.show()
       })
+    }
+  },
+
+  renderDeletedAuctions: async () => {
+    // Load the total task count from the blockchain
+    const $auctionTemplate = $('.auctionTemplate')
+
+    // Render out each task with a new task template
+    var delAuctionsParams = await App.auctionList.getDeletedAuctionsParams()
+    var first = delAuctionsParams[0].c[0]
+    var last = delAuctionsParams[1].c[0]
+    var size = delAuctionsParams[2].c[0]
+    console.log(first, size)
+    var maximum_del_number = await App.auctionList.MAXIMUM_NUMBER_OF_DELETED_AUCTIONS()
+    var i = 0;
+    while(i != size) {
+      App.auctionList.getDeletedAuction.call((first + i)%maximum_del_number).then(function(result) {
+        const auctionId = result[0].toNumber()
+        const auctionContent = result[1]
+        const auctionStartPrice = web3.fromWei(result[3].toNumber())
+        const auctionDeadline = uintToDate(result[4])
+        const highestBidderAddress = result[5]
+        var highestBid = web3.fromWei(result[6].toNumber())
+        const ended = Boolean(result[7])
+
+        if(highestBid == 0) {
+          highestBid = auctionStartPrice
+        }
+
+
+
+        // Create the html for the task
+        const $newAuctionTemplate = $auctionTemplate.clone()
+        $newAuctionTemplate.find('.content').html(auctionContent)
+        $newAuctionTemplate.find('.deadline').html(auctionDeadline)
+        $newAuctionTemplate.find('.startprice').html(auctionStartPrice)
+        $newAuctionTemplate.find('.highestbid').html(highestBid)
+        $newAuctionTemplate.find('.bidderaddress').html(highestBidderAddress)
+        $newAuctionTemplate.find('form')
+            .prop('name', auctionId)
+        $newAuctionTemplate.find('input')
+            .prop('id', "bidValue" + auctionId)
+        $newAuctionTemplate.find('input').prop('disabled', ended)
+        $newAuctionTemplate.find('button')
+            .prop('name', auctionId)
+        $newAuctionTemplate.find('button').prop('disabled', ended)
+
+        if (ended) {
+          $newAuctionTemplate.addClass('completedAuction')
+        }
+
+        // Put the auctions in the correct list
+        $('#auctionList').append($newAuctionTemplate)
+
+        // Show the auction
+        $newAuctionTemplate.show()
+      })
+      i += 1
     }
   },
 
@@ -135,14 +207,25 @@ App = {
   makeBid: async (id) => {
     App.setLoading(true)
     const bidValue = $('#bidValue'+id).val()
+    const bidInWei = web3.toWei(bidValue, 'ether')
 
-    const bidInWei = web3.toWei(bidValue, 'ether');
-    var sumOfPreviousBids = 0;
-    await App.auctionList.getSumOfPreviousBids.call(id).then(function(result) {
-        sumOfPreviousBids = result[1].toNumber();
+    var payoffsWithBid = 0
+    await App.auctionList.getPayoffsWithBid.call(id).then(function(result) {
+      payoffsWithBid = result.toNumber();
     })
 
-    await App.auctionList.makeBid(id, bidInWei, {value: (bidInWei - sumOfPreviousBids)});
+    if (payoffsWithBid >= bidInWei) {
+      await App.auctionList.makeBid(id, bidInWei, {value: 0})
+    }
+    else {
+      await App.auctionList.makeBid(id, bidInWei, {value: (bidInWei - payoffsWithBid)});
+    }
+    window.location.reload()
+  },
+
+  returnPayoffs: async() => {
+    App.setLoading(true)
+    await App.auctionList.returnPayoffs()
     window.location.reload()
   },
 
@@ -150,6 +233,15 @@ App = {
     App.setLoading(true)
     await App.auctionList.endAuction(id)
     window.location.reload()
+  },
+
+  getPayoff: async() => {
+    var payoff;
+    await App.auctionList.getPayoff.call(App.account).then(function(result) {
+      payoff = result[1].toNumber()
+    })
+    const payoffInEth = web3.fromWei(payoff)
+    $('#payoff-span').html(payoffInEth)
   },
 
   setLoading: (boolean) => {

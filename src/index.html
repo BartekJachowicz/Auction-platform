@@ -37,6 +37,21 @@
         margin-right: 5px;
       }
 
+      .payoffs {
+        float: left;
+        margin-right: 30px;
+      }
+
+      .payoff-amount {
+        color: limegreen;
+        font-size: large;
+        text-align: center;
+      }
+
+      .disclaimer {
+        color: red;
+      }
+
       form {
         width: 350px;
         margin-bottom: 10px;
@@ -50,9 +65,8 @@
         float: left;
       }
 
-      #completedTaskList .content {
+      .completedAuction {
         color: grey;
-        text-decoration: line-through;
       }
     </style>
   </head>
@@ -77,14 +91,15 @@
               <p><b>Add new Auction</b></p>
               <form onSubmit="App.createAuction(); return false;">
                 <input id="newAuction" type="text" class="form-control" placeholder="Item name" required>
-                <input id="startPrice" type="number" step="0.000000001" min="0" class="form-control" placeholder="Initial price" required>
+                <input id="startPrice" type="number" step="0.0001" min="0" class="form-control" placeholder="Initial price" required>
                 <input id="deadline-date" type="date" class="form-control" value="2021-01-31" required>
                 <input id="deadline-time" type="time" class="form-control" value="23:59" required>
-                <input type="submit" value="Submit">
+                <input type="submit" value="Submit" class="btn btn-light btn-block">
               </form>
             </div>
             <div id="auction-list">
-              <p><b>Auction list</b></p>
+              <p><b>Live Auctions</b></p>
+              <p class="disclaimer">Disclaimer: You have to raise current highest bid by at least 0.0005 ETH</p>
               <ul id="auctionList" class="list-unstyled">
                 <div class="auctionTemplate" style="display: none">
                   <label>
@@ -92,10 +107,10 @@
                     <span class="content">Auction content goes here...</span>
                     <br>
                     <Span>Initial Price:</Span>
-                    <span class="startprice">Start price goes here...</span>
+                    <span class="startprice">Start price goes here...</span> ETH
                     <br>
                     <Span>Highest Bid:</Span>
-                    <span class="highestbid">Highest bidder goes here...</span>
+                    <span class="highestbid">Highest bidder goes here...</span> ETH
                     <br>
                     <Span>Bidder address:</Span>
                     <span class="bidderaddress">Bidder address goes here...</span>
@@ -105,14 +120,21 @@
                   </label>
                   <div id="submit-bid">
                     <form onSubmit="App.makeBid(this.name); return false;">
-                      <input id="bidValue" type="number" step="0.000000001" class="form-control" min="0" placeholder="0" required>
-                      <input type="submit" value="Bid">
+                      <input id="bidValue" type="number" step="0.0001" class="form-control" min="0" placeholder="0" required>
+                      <br>
+                      <input type="submit" value="Bid" class="btn btn-success btn-sm">
                     </form>
                   </div>
-                  <button onclick="App.endAuction(this.name)">End Auction</button>
+                  <button onclick="App.endAuction(this.name)" class="btn btn-dark btn-sm">End Auction</button>
                   <hr>
                 </div>
               </ul>
+            </div>
+            <div id="get-payoff" class="payoffs">
+              Amount you can safely withdraw:<br>
+              <span id="payoff-span" class="payoff-amount"></span> ETH
+              <br>
+              <button onclick="App.returnPayoffs()" class="btn btn-success">Return payoffs</button>
             </div>
           </div>
         </main>

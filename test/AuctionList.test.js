@@ -40,16 +40,15 @@ contract('AuctionList', (accounts) => {
     assert.equal(result[0].toNumber(), 2)
     assert.equal(result[1], 'Auction2')
     assert.equal(result[3].toNumber(), 2)
-    // There should be no bids at this time
-    assert.equal(result[7].toNumber(), 0)
   })
 
   it('make highest bid', async () => {
     // Make new highest bid for the first auction
-    var result = await this.auctionList.makeBid(1, 2, {value: 2})
+    const SMALLEST_TICK_IN_WEI = 500000000000000;
+    var result = await this.auctionList.makeBid(1, 2 + SMALLEST_TICK_IN_WEI, {value: 2 + SMALLEST_TICK_IN_WEI})
     var event = result.logs[0].args
     assert.equal(event.auctionID.toNumber(), 1)
-    assert.equal(event.highestBid.toNumber(), 2)   
+    assert.equal(event.highestBid.toNumber(), 2 + SMALLEST_TICK_IN_WEI)   
   })
 
   it('make lower bid', async () => {
@@ -58,18 +57,18 @@ contract('AuctionList', (accounts) => {
         assert.fail("The transaction should have thrown an error");
     }
     catch (err) {
-        assert.include(err.message, "Bid to low", "The error message should contain 'Bid to low'");
+        assert.include(err.message, "Bid too low", "The error message should contain 'Bid too low'");
     }   
   })
 
   it('get auction after bid', async () => {
     // Get auction after bid done (auction id = 1)
+    const SMALLEST_TICK_IN_WEI = 500000000000000;
     const result = await this.auctionList.getAuction(1);
     assert.equal(result[0].toNumber(), 1)
     assert.equal(result[1], 'Auction1')
     assert.equal(result[3].toNumber(), 1)
-    assert.equal(result[6].toNumber(), 2)
-    assert.equal(result[7].toNumber(), 1)
+    assert.equal(result[6].toNumber(), 2 + SMALLEST_TICK_IN_WEI)
   })
 
   it('end not finished auction', async () => {
