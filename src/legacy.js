@@ -92,7 +92,7 @@ AppLegacy = {
                 const auctionDeadline = uintToDate(result[4])
                 const highestBidderAddress = result[5]
                 var highestBid = web3.fromWei(result[6].toNumber())
-                const ended = Boolean(result[8])
+                const ended = Boolean(result[7])
 
                 if(highestBid == 0) {
                     highestBid = auctionStartPrice
