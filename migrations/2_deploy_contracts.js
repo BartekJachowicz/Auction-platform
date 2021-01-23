@@ -1,6 +1,6 @@
 var AuctionList = artifacts.require("./AuctionList.sol");
-var LegacyAuctionList = artifacts.require("./LegacyAuctionList.sol");
-var MainAuctionList = artifacts.require("./MainAuctionList.sol")
+var LegacyAuctionList = artifacts.require("./AutomaticReturnAuctionList.sol");
+var MainAuctionList = artifacts.require("./PayoffAuctionList.sol")
 
 module.exports = function(deployer) {
   deployer.deploy(AuctionList);
