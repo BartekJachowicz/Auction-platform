@@ -1,10 +1,10 @@
 const { assert } = require("chai")
 
-const AuctionList = artifacts.require('./AuctionList.sol')
+const MainAuctionList = artifacts.require('./MainAuctionList.sol')
 
-contract('AuctionList', (accounts) => {
+contract('MainAuctionList', (accounts) => {
   before(async () => {
-    this.auctionList = await AuctionList.deployed()
+    this.auctionList = await MainAuctionList.deployed()
   })
 
   it('deploys successfully', async () => {
