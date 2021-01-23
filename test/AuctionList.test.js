@@ -44,10 +44,11 @@ contract('AuctionList', (accounts) => {
 
   it('make highest bid', async () => {
     // Make new highest bid for the first auction
-    var result = await this.auctionList.makeBid(1, 2, {value: 2})
+    const SMALLEST_TICK_IN_WEI = 500000000000000;
+    var result = await this.auctionList.makeBid(1, 2 + SMALLEST_TICK_IN_WEI, {value: 2 + SMALLEST_TICK_IN_WEI})
     var event = result.logs[0].args
     assert.equal(event.auctionID.toNumber(), 1)
-    assert.equal(event.highestBid.toNumber(), 2)   
+    assert.equal(event.highestBid.toNumber(), 2 + SMALLEST_TICK_IN_WEI)   
   })
 
   it('make lower bid', async () => {
@@ -62,11 +63,12 @@ contract('AuctionList', (accounts) => {
 
   it('get auction after bid', async () => {
     // Get auction after bid done (auction id = 1)
+    const SMALLEST_TICK_IN_WEI = 500000000000000;
     const result = await this.auctionList.getAuction(1);
     assert.equal(result[0].toNumber(), 1)
     assert.equal(result[1], 'Auction1')
     assert.equal(result[3].toNumber(), 1)
-    assert.equal(result[6].toNumber(), 2)
+    assert.equal(result[6].toNumber(), 2 + SMALLEST_TICK_IN_WEI)
   })
 
   it('end not finished auction', async () => {
