@@ -60,11 +60,13 @@ contract LegacyAuctionList is AuctionList {
     function deleteAuction(uint auctionID) private {
         auctions[auctionID] = auctions[auctionNumber];
         auctionIdsToBids[auctionID] = auctionIdsToBids[auctionNumber];
+        numberOfBids[auctionID] = numberOfBids[auctionNumber];
 
         auctions[auctionID].id = auctionID;
 
         delete auctions[auctionNumber];
         delete auctionIdsToBids[auctionNumber];
+        delete numberOfBids[auctionNumber];
 
         auctionNumber --;
     }
