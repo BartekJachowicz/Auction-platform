@@ -37,6 +37,21 @@
             margin-right: 5px;
         }
 
+        .payoffs {
+            float: left;
+            margin-right: 30px;
+        }
+
+        .payoff-amount {
+            color: limegreen;
+            font-size: large;
+            text-align: center;
+        }
+
+        .disclaimer {
+            color: red;
+        }
+
         form {
             width: 350px;
             margin-bottom: 10px;
@@ -46,16 +61,23 @@
             margin-bottom: 0px;
         }
 
-        #completedTaskList .content {
+        .automatic {
+            float: left;
+        }
+
+        .completedAuction {
             color: grey;
-            text-decoration: line-through;
         }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="" target="_blank">Ethereum | Auction List</a>
-    <a class="col-sm-3 col-md-2 automatic" href="./index.html">Classic Auctions</a>
+    <ul class="navbar-nav">
+        <li class="nav-item active">
+            <a class="nav-link" href="./index.html">Classic Auctions <span class="sr-only">(current)</span></a>
+        </li>
+    </ul>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap d-none d-sm-none d-sm-block">
             <small><a class="nav-link" href="#"><span id="account"></span></a></small>
@@ -71,16 +93,17 @@
             <div id="content">
                 <div id="submit-auction">
                     <p><b>Add new Auction</b></p>
-                    <form onSubmit="App.createAuction(); return false;">
+                    <form onSubmit="AppLegacy.createAuction(); return false;">
                         <input id="newAuction" type="text" class="form-control" placeholder="Item name" required>
-                        <input id="startPrice" type="number" step="0.000000001" min="0" class="form-control" placeholder="Initial price" required>
+                        <input id="startPrice" type="number" step="0.0001" min="0" class="form-control" placeholder="Initial price" required>
                         <input id="deadline-date" type="date" class="form-control" value="2021-01-31" required>
                         <input id="deadline-time" type="time" class="form-control" value="23:59" required>
-                        <input type="submit" value="Submit">
+                        <input type="submit" value="Submit" class="btn btn-light btn-block">
                     </form>
                 </div>
                 <div id="auction-list">
-                    <p><b>Auction list</b></p>
+                    <p><b>Live Auctions</b></p>
+                    <p class="disclaimer">Disclaimer: You have to raise current highest bid by at least 0.0005 ETH</p>
                     <ul id="auctionList" class="list-unstyled">
                         <div class="auctionTemplate" style="display: none">
                             <label>
@@ -88,10 +111,10 @@
                                 <span class="content">Auction content goes here...</span>
                                 <br>
                                 <Span>Initial Price:</Span>
-                                <span class="startprice">Start price goes here...</span>
+                                <span class="startprice">Start price goes here...</span> ETH
                                 <br>
                                 <Span>Highest Bid:</Span>
-                                <span class="highestbid">Highest bidder goes here...</span>
+                                <span class="highestbid">Highest bidder goes here...</span> ETH
                                 <br>
                                 <Span>Bidder address:</Span>
                                 <span class="bidderaddress">Bidder address goes here...</span>
@@ -100,12 +123,13 @@
                                 <span class="deadline">Deadline goes here...</span>
                             </label>
                             <div id="submit-bid">
-                                <form onSubmit="App.makeBid(this.name); return false;">
-                                    <input id="bidValue" type="number" step="0.000000001" class="form-control" min="0" placeholder="0" required>
-                                    <input type="submit" value="Bid">
+                                <form onSubmit="AppLegacy.makeBid(this.name); return false;">
+                                    <input id="bidValue" type="number" step="0.0001" class="form-control" min="0" placeholder="0" required>
+                                    <br>
+                                    <input type="submit" value="Bid" class="btn btn-success btn-sm">
                                 </form>
                             </div>
-                            <button onclick="App.endAuction(this.name)">End Auction</button>
+                            <button onclick="AppLegacy.endAuction(this.name)" class="btn btn-dark btn-sm">End Auction</button>
                             <hr>
                         </div>
                     </ul>

@@ -139,7 +139,6 @@ App = {
     var first = delAuctionsParams[0].c[0]
     var last = delAuctionsParams[1].c[0]
     var size = delAuctionsParams[2].c[0]
-    console.log(first, size)
     var maximum_del_number = await App.auctionList.MAXIMUM_NUMBER_OF_DELETED_AUCTIONS()
     var i = 0;
     while(i != size) {
@@ -208,7 +207,6 @@ App = {
     App.setLoading(true)
     const bidValue = $('#bidValue'+id).val()
     const bidInWei = web3.toWei(bidValue, 'ether')
-    console.log(bidValue, bidInWei)
 
     var payoffsWithBid = 0
     await App.auctionList.getPayoffsWithBid.call(id).then(function(result) {
@@ -219,7 +217,6 @@ App = {
       await App.auctionList.makeBid(id, bidInWei, {value: 0})
     }
     else {
-      console.log(bidValue, bidInWei, payoffsWithBid)
       await App.auctionList.makeBid(id, bidInWei, {value: (bidInWei - payoffsWithBid)});
     }
     window.location.reload()
