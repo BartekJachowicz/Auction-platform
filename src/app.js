@@ -111,7 +111,7 @@ App = {
         $newAuctionTemplate.find('form')
             .prop('name', auctionId)
         $newAuctionTemplate.find('input')
-            .prop('id', "bidValue2" + auctionId)
+            .prop('id', "bidValue" + auctionId)
         $newAuctionTemplate.find('input').prop('disabled', ended)
         $newAuctionTemplate.find('button')
             .prop('name', auctionId)
@@ -168,7 +168,7 @@ App = {
         $newAuctionTemplate.find('form')
             .prop('name', auctionId)
         $newAuctionTemplate.find('input')
-            .prop('id', "bidValue" + auctionId)
+            .prop('id', "bidValue2" + auctionId)
         $newAuctionTemplate.find('input').prop('disabled', ended)
         $newAuctionTemplate.find('button')
             .prop('name', auctionId)
@@ -208,6 +208,7 @@ App = {
     App.setLoading(true)
     const bidValue = $('#bidValue'+id).val()
     const bidInWei = web3.toWei(bidValue, 'ether')
+    console.log(bidValue, bidInWei)
 
     var payoffsWithBid = 0
     await App.auctionList.getPayoffsWithBid.call(id).then(function(result) {
@@ -218,6 +219,7 @@ App = {
       await App.auctionList.makeBid(id, bidInWei, {value: 0})
     }
     else {
+      console.log(bidValue, bidInWei, payoffsWithBid)
       await App.auctionList.makeBid(id, bidInWei, {value: (bidInWei - payoffsWithBid)});
     }
     window.location.reload()

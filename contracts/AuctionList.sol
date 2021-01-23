@@ -140,7 +140,6 @@ contract AuctionList {
         require(now >= auctions[auctionID].deadline);
         Auction storage endedAuction = auctions[auctionID];
         if (endedAuction.ended) {
-            deleteAuction(auctionID);
             return;
         }
 
