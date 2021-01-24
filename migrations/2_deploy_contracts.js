@@ -1,9 +1,9 @@
-var LegacyAuctionList = artifacts.require("./LegacyAuctionList.sol");
-var MainAuctionList = artifacts.require("./MainAuctionList.sol")
+var AutomaticReturnAuctionList = artifacts.require("./AutomaticReturnAuctionList.sol");
+var PayoffAuctionList = artifacts.require("./PayoffAuctionList.sol")
 var CommitRevealAuctionList = artifacts.require("./CommitRevealAuctionList.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(LegacyAuctionList)
-  deployer.deploy(MainAuctionList)
+  deployer.deploy(AutomaticReturnAuctionList)
+  deployer.deploy(PayoffAuctionList)
   deployer.deploy(CommitRevealAuctionList);
 };

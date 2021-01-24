@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./AuctionList.sol";
 
-contract LegacyAuctionList is AuctionList {
+contract AutomaticReturnAuctionList is AuctionList {
 
     constructor() public {}
 
