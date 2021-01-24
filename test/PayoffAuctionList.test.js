@@ -78,7 +78,7 @@ contract('PayoffAuctionList', (accounts) => {
         assert.fail("The transaction should have thrown an error");
     }
     catch (err) {
-        assert.include(err.message, "revert", "The error message should contain 'revert'");
+        assert.include(err.message, "Auction should be finished");
     }   
   })
 })

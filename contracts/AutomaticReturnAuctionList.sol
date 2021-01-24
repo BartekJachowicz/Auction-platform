@@ -25,8 +25,7 @@ contract AutomaticReturnAuctionList is AuctionList {
         return true;
     }
 
-    function endAuction(uint auctionID) public payable {
-        require(now >= auctions[auctionID].deadline);
+    function endAuction(uint auctionID) public payable auctionFinished(auctionID) {
         Auction storage endedAuction = auctions[auctionID];
         if (endedAuction.ended) {
             return;

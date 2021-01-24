@@ -8,7 +8,7 @@ contract PayoffAuctionList is AuctionList {
 
     mapping(address => uint256) public payoffs;
 
-    function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns (bool) {
+    function makeBid(uint auctionID, uint256 bidPrice) public payable auctionLive(auctionID) returns (bool) {
         require(bidPrice >= auctions[auctionID].highestBid + SMALLEST_TICK_IN_WEI, "Bid too low!");
         require(bidPrice >= auctions[auctionID].startPrice + SMALLEST_TICK_IN_WEI, "Bid too low!");
         require(msg.value + getPayoffsWithBid(auctionID) >= bidPrice, "Wrong message value!");
@@ -32,8 +32,7 @@ contract PayoffAuctionList is AuctionList {
         return true;
     }
 
-    function endAuction(uint auctionID) public payable {
-        require(now >= auctions[auctionID].deadline);
+    function endAuction(uint auctionID) public payable auctionFinished(auctionID) {
         Auction storage endedAuction = auctions[auctionID];
         if (endedAuction.ended) {
             return;

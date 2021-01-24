@@ -18,12 +18,12 @@ contract CommitRevealAuctionList is PayoffAuctionList {
 
   mapping(address => BidCommit) public commits;
 
-  function commit(uint auctionId, bytes32 bidHash) public liveAuction(auctionId) {
+  function commit(uint auctionId, bytes32 bidHash) public auctionLive(auctionId) {
     commits[msg.sender] = BidCommit(auctionId, bidHash, block.number);
     emit BidCommitted(auctionId, bidHash, block.number);
   }
 
-  function reveal(uint auctionId, uint256 bid, uint256 randomNonce) public payable liveAuction(auctionId) {
+  function reveal(uint auctionId, uint256 bid, uint256 randomNonce) public payable auctionLive(auctionId) {
     require(commits[msg.sender].blockNumber + 100 <= block.number, "Too early reveal");
     require(commits[msg.sender].bidHash == hash(auctionId, bid, randomNonce), "Incorrect hash");
     makeBid(auctionId, bid);
