@@ -49,7 +49,7 @@ AppLegacy = {
 
     loadContract: async () => {
         // Create a JavaScript version of the smart contract
-        const legacyAuctionList = await $.getJSON('LegacyAuctionList.json')
+        const legacyAuctionList = await $.getJSON('AutomaticReturnAuctionList.json')
         AppLegacy.contracts.LegacyAuctionList = TruffleContract(legacyAuctionList)
         AppLegacy.contracts.LegacyAuctionList.setProvider(AppLegacy.web3Provider)
 

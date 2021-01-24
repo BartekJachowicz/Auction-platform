@@ -1,8 +1,8 @@
 pragma solidity ^0.5.0;
 
-import "./MainAuctionList.sol";
+import "./PayoffAuctionList.sol";
 
-contract CommitRevealAuctionList is MainAuctionList {
+contract CommitRevealAuctionList is PayoffAuctionList {
 
   struct BidCommit {
     uint auctionId;
