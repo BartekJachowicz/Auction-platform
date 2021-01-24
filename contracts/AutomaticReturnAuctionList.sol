@@ -9,7 +9,7 @@ contract AutomaticReturnAuctionList is AuctionList {
     mapping(uint => Bid[]) public auctionIdsToBids;
     mapping(uint => uint) public numberOfBids;
 
-    function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns(bool){
+    function makeBid(uint auctionID, uint256 bidPrice) public payable auctionLive(auctionID) returns(bool){
         require(bidPrice > auctions[auctionID].highestBid, "Bid to low!");
         (,uint256 sumOfPreviousBids) = getSumOfPreviousBids(auctionID);
         uint256 overallBid = msg.value + sumOfPreviousBids;
@@ -25,8 +25,7 @@ contract AutomaticReturnAuctionList is AuctionList {
         return true;
     }
 
-    function endAuction(uint auctionID) public payable {
-        require(now >= auctions[auctionID].deadline);
+    function endAuction(uint auctionID) public payable auctionFinished(auctionID) {
         Auction storage endedAuction = auctions[auctionID];
         if (endedAuction.ended) {
             return;

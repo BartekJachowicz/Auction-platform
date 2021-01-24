@@ -56,8 +56,13 @@ contract AuctionList {
         address payable highestBidAddress
     );
 
-    modifier liveAuction(uint auctionId) {
+    modifier auctionLive(uint auctionId) {
         require(now < auctions[auctionId].deadline, "Auction should be still live");
+        _;
+    }
+
+    modifier auctionFinished(uint auctionId) {
+        require(auctions[auctionId].deadline < now, "Auction should be finished");
         _;
     }
 
