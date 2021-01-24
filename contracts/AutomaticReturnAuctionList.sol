@@ -10,7 +10,7 @@ contract AutomaticReturnAuctionList is AuctionList {
     mapping(uint => uint) public numberOfBids;
 
     function makeBid(uint auctionID, uint256 bidPrice) public payable liveAuction(auctionID) returns(bool){
-        require(bidPrice > auctions[auctionID].highestBid, "Bid to low!");
+        require(bidPrice > auctions[auctionID].highestBid + SMALLEST_TICK_IN_WEI, "Bid too low!");
         (,uint256 sumOfPreviousBids) = getSumOfPreviousBids(auctionID);
         uint256 overallBid = msg.value + sumOfPreviousBids;
         require(overallBid >= bidPrice, "Wrong message value!");
