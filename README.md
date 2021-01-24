@@ -38,3 +38,23 @@ Ethereum smart contract
 
 
 ```
+## How to run the project
+
+* run Ganache and have MetaMask connected to Ganache's instance
+* compile the contracts
+
+```bash
+truffle compile
+```
+
+* migrate smart contracts
+
+```bash
+truffle migrate
+```
+
+* run frontend locally
+
+```bash
+npm run dev
+```
