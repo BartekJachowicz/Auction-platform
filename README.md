@@ -58,3 +58,9 @@ truffle migrate
 ```bash
 npm run dev
 ```
+
+* run tests
+
+```bash
+truffle test
+```
